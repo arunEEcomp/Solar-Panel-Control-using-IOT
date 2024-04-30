@@ -1,0 +1,106 @@
+#include <Servo.h>
+
+// Define LDR pins and servo pins
+const int ldr1Pin = A0;
+const int ldr2Pin = A1;
+const int ldr3Pin = A2; // New LDR for the second servo
+const int ldr4Pin = A3; // New LDR for the second servo
+const int servoPin1 = 9; // Change this to the pin your first servo is connected to
+const int servoPin2 = 10; // Change this to the pin your second servo is connected to
+
+// Initialize servo objects
+Servo myServo1;
+Servo myServo2;
+
+// Variables for LDR readings and servo angles
+int ldr1Value, ldr2Value, ldr3Value, ldr4Value;
+int servoAngle1 = 90; // Starting angle for the first servo
+int servoAngle2 = 90; // Starting angle for the second servo
+
+// Define the pin numbers
+const int relayPin = 7; // Relay connected to digital pin 7
+const int ledPin = 2; // LED connected to digital pin 9
+
+void setup() {
+ myServo1.attach(servoPin1); // Attach first servo to specified pin
+ myServo2.attach(servoPin2); // Attach second servo to specified pin
+ myServo1.write(servoAngle1); // Set initial angle for the first servo
+ myServo2.write(servoAngle2); // Set initial angle for the second servo
+ Serial.begin(9600); // Start serial communication for debugging
+
+  // Initialize the relay pin as an output
+ pinMode(relayPin, OUTPUT);
+  
+ // Initialize the LED pin as an output
+ pinMode(ledPin, OUTPUT);
+}
+
+void loop() {
+ // Read LDR values
+ ldr1Value = analogRead(ldr1Pin);
+ ldr2Value = analogRead(ldr2Pin);
+ ldr3Value = analogRead(ldr3Pin); // Read value from the new LDR
+ ldr4Value = analogRead(ldr4Pin); // Read value from the new LDR
+
+ // Adjust servo angles based on LDR values
+ // For the first servo, you can use the same logic as before
+ // For the second servo, you might want to use the combined values of the new LDRs
+ // This is a simple example; you might need to adjust the logic based on your specific requirements
+ if (ldr1Value > ldr2Value) {
+    servoAngle1 -= 2; // Decrease angle for the first servo if first LDR is brighter
+ } else if (ldr1Value <= ldr2Value) {
+    servoAngle1 += 2; // Increase angle for the first servo if second LDR is brighter
+ }
+
+ // Example logic for the second servo based on the new LDRs
+ if (ldr3Value > ldr4Value) {
+    servoAngle2 -= 2; // Decrease angle for the second servo if third LDR is brighter
+ } else if (ldr3Value <= ldr4Value) {
+    servoAngle2 += 2; // Increase angle for the second servo if fourth LDR is brighter
+ }
+
+ // Ensure servo angles stay within 50 to 130 degrees
+ if (servoAngle1 > 130) {
+    servoAngle1 = 130;
+ } else if (servoAngle1 < 50) {
+    servoAngle1 = 50;
+ }
+ if (servoAngle2 > 130) {
+    servoAngle2 = 130;
+ } else if (servoAngle2 < 50) {
+    servoAngle2 = 50;
+ }
+
+ // Move servos to the new angles
+ myServo1.write(servoAngle1);
+ myServo2.write(servoAngle2);
+
+ // Print LDR values and servo angles for debugging
+ Serial.print("LDR1: ");
+ Serial.print(ldr1Value);
+ Serial.print(" LDR2: ");
+ Serial.print(ldr2Value);
+ Serial.print(" LDR3: ");
+ Serial.print(ldr3Value);
+ Serial.print(" LDR4: ");
+ Serial.print(ldr4Value);
+ Serial.print(" Servo1 Angle: ");
+ Serial.print(servoAngle1);
+ Serial.print(" Servo2 Angle: ");
+ Serial.println(servoAngle2);
+
+ delay(20); // Small delay for stability
+
+  // Read the state of the switch
+ int ledState = digitalRead(ledPin);
+  
+ // Check if the switch is pressed
+ if (ledState == HIGH) {
+    // Turn ON the relay
+    digitalWrite(relayPin, LOW);
+
+ } else {
+    // Turn OFF the relay
+    digitalWrite(relayPin, HIGH);
+  }
+}
